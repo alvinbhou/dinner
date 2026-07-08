@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We saved you a seat!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Courier+Prime&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #FDFCF0;
+            --text-color: #5F6335;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 50px 20px 100px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 3D Overlay Container Styling */
+        .header {
+            position: relative;
+            margin-top: 60px;
+            margin-bottom: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 350px; 
+            transition: all 0.3s ease;
+        }
+
+        .header-image {
+            width: 100%;
+            height: auto;
+            position: relative;
+            z-index: 2;
+            transition: opacity 0.3s ease, width 0.3s ease;
+        }
+
+        /* cake.png is nearly square, so it renders taller than the wider
+           welcome.png at the same width; scale it down to match height */
+        .header-image[src="cake.png"] {
+            width: 90%;
+        }
+
+        .header-image[src="raffle.png"] {
+            width: 110%;
+        }
+
+        .header:has(.header-image[src="raffle.png"]) .title-text-top {
+            top: 0%;
+        }
+
+        /* Top Text Layer (Behind image) */
+        .title-text-top {
+            position: absolute;
+            top: -18%;
+            left: 50%;
+            transform: translateX(-50%) rotate(-3deg);
+            font-family: 'Caveat Brush', cursive;
+            font-size: 6rem;
+            margin: 0;
+            z-index: 1;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Bottom Text Layer (In front of image) */
+        .title-text-bottom {
+            position: absolute;
+            bottom: -15%;
+            left: 50%;
+            transform: translateX(-50%) rotate(-3deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+            white-space: nowrap;
+            text-shadow: 0 0 10px var(--bg-color), 0 0 20px var(--bg-color), 0 0 30px var(--bg-color);
+        }
+
+        .title-text-bottom h1 {
+            font-family: 'Caveat Brush', cursive;
+            font-size: 6rem;
+            margin: 0;
+            line-height: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .squiggle {
+            width: 250px;
+            margin-top: 15px;
+            filter: drop-shadow(0 0 10px var(--bg-color));
+        }
+
+        /* TAB SYSTEM STYLES */
+        .tab-content {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #FDFCF0;
+            display: flex;
+            justify-content: space-around;
+            padding: 11px 0 calc(11px + env(safe-area-inset-bottom)) 0;
+            box-shadow: 0 -5px 20px rgba(95, 99, 53, 0.08);
+            z-index: 1000;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-color);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 6px;
+            flex: 1;
+        }
+
+        .tab-btn.active {
+            opacity: 1;
+            font-weight: 700;
+            transform: translateY(-2px);
+        }
+
+        /* Search Bar Styling */
+        .search-container {
+            margin-bottom: 50px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .searchInput {
+            width: 100%;
+            padding: 12px 20px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1rem;
+            color: var(--text-color);
+            background-color: transparent;
+            border: 1px solid var(--text-color);
+            border-radius: 30px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .searchInput::placeholder {
+            color: var(--text-color);
+            opacity: 0.5;
+        }
+
+        .searchInput:focus {
+            box-shadow: 0 0 8px rgba(95, 99, 53, 0.2);
+            background-color: #fffbef;
+        }
+
+        /* Seating Chart Styles */
+        .seating-chart {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px 100px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .table-block {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .col-left .table-block { text-align: left; }
+        .col-right .table-block { text-align: right; align-items: flex-end; }
+
+        .table-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .guest-list {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .highlight {
+            font-weight: bold;
+            background-color: rgba(95, 99, 53, 0.15);
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        /* Menu Styles */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .menu-dish {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .menu-desc {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            opacity: 0.75;
+            line-height: 1.4;
+        }
+
+        .menu-divider {
+            font-size: 1.5rem;
+            margin: 5px 0 30px 0;
+            opacity: 0.5;
+            font-family: serif;
+        }
+
+        /* Itinerary / Timeline Styles */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 35px;
+            padding-bottom: 38px;
+            border-left: 2px solid rgba(95, 99, 53, 0.25);
+        }
+
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--text-color);
+        }
+
+        .timeline-time {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            opacity: 0.65;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-desc {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+
+        .timeline-sub {
+            margin-top: 14px;
+            padding-left: 16px;
+            border-left: 1px dashed rgba(95, 99, 53, 0.35);
+        }
+
+        .timeline-sub-item {
+            margin-bottom: 10px;
+        }
+
+        .timeline-sub-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-sub-time {
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .timeline-sub-desc {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+
+        .lang-toggle-wrap {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 10px;
+            box-sizing: border-box;
+            margin-bottom: 18px;
+        }
+
+        .lang-toggle {
+            background: none;
+            border: 1px solid rgba(95, 99, 53, 0.3);
+            border-radius: 20px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            color: var(--text-color);
+            opacity: 0.45;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .lang-toggle:hover {
+            opacity: 0.85;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .header { max-width: 260px; margin-top: 50px; margin-bottom: 70px; }
+            .title-text-top { font-size: 4.5rem; top: -12%; }
+            .title-text-bottom h1 { font-size: 4.5rem; }
+            .title-text-bottom { bottom: -10%; }
+            .squiggle { width: 180px; }
+            .seating-chart { gap: 40px 20px; }
+            .table-title { font-size: 1.3rem; letter-spacing: 1px; }
+            .guest-list { font-size: 0.95rem; line-height: 1.6; }
+            .tab-btn { font-size: 0.65rem; padding: 7px 5px; }
+            .menu-dish { font-size: 1rem; }
+            .menu-desc { font-size: 0.85rem; }
+            .timeline-item { padding-left: 26px; padding-bottom: 30px; }
+            .timeline-title { font-size: 1.05rem; }
+            .timeline-desc, .timeline-sub-desc { font-size: 0.88rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 class="title-text-top">We saved</h1>
+        <img src="welcome.png" id="main-header-image" alt="Header Graphic" class="header-image">
+        <div class="title-text-bottom">
+            <h1>you a seat!</h1>
+            <svg class="squiggle" viewBox="0 0 250 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 20 Q 20 5, 35 20 T 65 20 T 95 20 T 125 20 T 155 20 T 185 20 T 215 20 T 245 20" stroke="#5F6335" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+        </div>
+    </div>
+
+    <div id="tab-seat-chart" class="tab-content active">
+        <div class="search-container">
+            <input type="text" class="searchInput" placeholder="Find your name..." onkeyup="searchGuests(this)">
+        </div>
+        <div class="seating-chart">
+            <div class="col-left">
+                <div class="table-block" style="margin-bottom: 50px;"><h2 class="table-title">ONE</h2><ul class="guest-list"><li>Rachel Liao</li><li>Reichi Chen</li><li>Emily Chen</li><li>Wesley Chao</li><li>Chessy Hsu</li><li>Jimmy Pan</li></ul></div>
+                <div class="table-block" style="margin-bottom: 50px;"><h2 class="table-title">TWO</h2><ul class="guest-list"><li>Fiona Kuo</li><li>Fang-I Hsiao</li><li>Yu-Wei Wu</li><li>Cheng-Min Chiang</li><li>Coco Shih</li><li>Jimmy Chang</li></ul></div>
+                <div class="table-block"><h2 class="table-title">THREE</h2><ul class="guest-list"><li>Alvin Hou</li><li>Janice Shih</li><li>Yu-Chih Hou</li><li>Jenyi Lai</li><li>Allison Hou</li><li>Yu-Lin Shih</li><li>Shu-Ling Lin</li></ul></div>
+            </div>
+            <div class="col-right">
+                <div class="table-block" style="margin-bottom: 50px;"><h2 class="table-title">FOUR</h2><ul class="guest-list"><li>Leo Chou</li><li>Cathy Luo</li><li>Frank Chen</li><li>Wenting Yeh</li><li>Fu Tan</li><li>Jennifer Chen</li></ul></div>
+                <div class="table-block" style="margin-bottom: 50px;"><h2 class="table-title">FIVE</h2><ul class="guest-list"><li>Angelina Wu</li><li>Shelton Xia</li><li>Blake Tien</li><li>Benson Guan</li><li>Wesley Wei</li><li>Esther Hsu</li><li>Shawn Lee</li></ul></div>
+                <div class="table-block"><h2 class="table-title">SIX</h2><ul class="guest-list"><li>Heron Yang</li><li>I-Hsuan Chen</li><li>Elaine Lin</li><li>Wei-Che Chen</li><li>Yu-Hsiang Chang</li></ul></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-itinerary" class="tab-content">
+        <div class="lang-toggle-wrap">
+            <button class="lang-toggle" id="itinerary-lang-toggle" onclick="toggleItineraryLang(this)">EN</button>
+        </div>
+        <div class="timeline-container" id="itinerary-zh">
+            <div class="timeline-item">
+                <div class="timeline-time">18:00 — 18:35</div>
+                <div class="timeline-title">迎賓與專屬合影</div>
+                <div class="timeline-desc">於門口迎接親友並直接合照留念，人數不多，時間充裕可從容拍攝高畫質合影。</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">18:35 — 18:45</div>
+                <div class="timeline-title">晚宴開場</div>
+                <div class="timeline-desc">請大家入座，燈光調暗播放開場影片，凝聚全場注意力。</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">18:45 — 19:05</div>
+                <div class="timeline-title">誓詞與溫馨時刻</div>
+                <div class="timeline-desc">新人進場後互相發表誓詞，並邀請雙方家長致詞，留下最重要的感動畫面。</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">19:05 — 19:15</div>
+                <div class="timeline-title">甜蜜儀式</div>
+                <div class="timeline-desc">進行切蛋糕儀式，隨後帶領全場舉杯（Toast），宣布晚宴正式開始，請大家盡情享用美食！</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">19:15 — 21:30</div>
+                <div class="timeline-title">晚宴開席與活動穿插</div>
+                <div class="timeline-desc">19:15 準時出第一道菜，開席期間穿插以下活動：</div>
+                <div class="timeline-sub">
+                    <div class="timeline-sub-item">
+                        <div class="timeline-sub-time">20:15 — 20:30 友人致辭</div>
+                        <div class="timeline-sub-desc">開席約一小時後，氣氛最放鬆，邀請好友上台分享趣事。</div>
+                    </div>
+                    <div class="timeline-sub-item">
+                        <div class="timeline-sub-time">20:50 — 21:30 抽獎與互動遊戲</div>
+                        <div class="timeline-sub-desc">趁上甜點、水果與咖啡時進行，邊吃甜點邊玩遊戲，將晚宴帶向高潮。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">21:30 — 22:00</div>
+                <div class="timeline-title">自由交流與送客</div>
+                <div class="timeline-desc">活動與餐點皆已盡興，保留最後 30 分鐘讓親友自由走動聊天，接著發放送客小禮物，晚上 10:00 準時、優雅地圓滿落幕。</div>
+            </div>
+        </div>
+        <div class="timeline-container" id="itinerary-en" style="display: none;">
+            <div class="timeline-item">
+                <div class="timeline-time">18:00 — 18:35</div>
+                <div class="timeline-title">Guest Arrival &amp; Photo Session</div>
+                <div class="timeline-desc">Welcome guests at the entrance and take photos right away — with an intimate guest list, 35 minutes is plenty for high-quality group shots.</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">18:35 — 18:45</div>
+                <div class="timeline-title">Banquet Opening</div>
+                <div class="timeline-desc">Guests take their seats as the lights dim for the opening video, drawing everyone's attention.</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">18:45 — 19:05</div>
+                <div class="timeline-title">Vows &amp; Heartfelt Moments</div>
+                <div class="timeline-desc">After the grand entrance, the couple exchanges vows and invites both sets of parents to speak — the night's most touching moments.</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">19:05 — 19:15</div>
+                <div class="timeline-title">Sweet Ceremony</div>
+                <div class="timeline-desc">Cake-cutting ceremony, followed by a toast led by the couple: "Dinner is officially served — enjoy!"</div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">19:15 — 21:30</div>
+                <div class="timeline-title">Dinner Service &amp; Interleaved Activities</div>
+                <div class="timeline-desc">The first course is served promptly at 19:15, with activities woven throughout dinner:</div>
+                <div class="timeline-sub">
+                    <div class="timeline-sub-item">
+                        <div class="timeline-sub-time">20:15 — 20:30 Friends' Speeches</div>
+                        <div class="timeline-sub-desc">About an hour in, when guests are most relaxed, friends take the stage to share stories.</div>
+                    </div>
+                    <div class="timeline-sub-item">
+                        <div class="timeline-sub-time">20:50 — 21:30 Raffle &amp; Interactive Games</div>
+                        <div class="timeline-sub-desc">Timed around dessert, fruit, and coffee — playing games while eating dessert brings the evening to a joyful climax.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">21:30 — 22:00</div>
+                <div class="timeline-title">Mingle &amp; Farewell</div>
+                <div class="timeline-desc">With activities and dining wrapped up, the last 30 minutes are for guests to mingle freely. Favors are handed out as the evening wraps up elegantly, right on time at 10:00 PM.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-menu" class="tab-content">
+        <div class="menu-container">
+            <div class="menu-item">
+                <div class="menu-dish">tomato marinated zapallito squash</div>
+                <div class="menu-desc">yellow corn, cotija cheese & purslane</div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-dish">local halibut crudo</div>
+                <div class="menu-desc">watermelon aguachile & toasted nigella seeds</div>
+            </div>
+
+            <div class="menu-divider">‡</div>
+
+            <div class="menu-item">
+                <div class="menu-dish">fried green tomatoes</div>
+                <div class="menu-desc">salsa macha verde & pepita crema</div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-dish">blistered pole beans</div>
+                <div class="menu-desc">new potatoes & summer basils</div>
+            </div>
+
+            <div class="menu-divider">‡</div>
+
+            <div class="menu-item">
+                <div class="menu-dish">fried ‘whole’ mcfarland springs trout</div>
+                <div class="menu-desc">pluot-thai chile fish sauce & toasted jade rice</div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-dish">bbq liberty farms duck</div>
+                <div class="menu-desc">peanut fried rice & smoked chile vinegar</div>
+            </div>
+
+            <div class="menu-divider">‡</div>
+
+            <div class="menu-item">
+                <div class="menu-dish">‘ice cream’ sandwich</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-photos" class="tab-content">
+        <div class="search-container">
+            <input type="text" class="searchInput" placeholder="Find your name..." onkeyup="searchGuests(this)">
+        </div>
+        <div class="seating-chart">
+            <div class="col-left">
+                <div class="table-block"><h2 class="table-title">ONE</h2><ul class="guest-list"><li>Rachel Liao</li><li>Reichi Chen</li><li>Emily Chen</li><li>Wesley Chao</li><li>Chessy Hsu</li><li>Jimmy Pan</li></ul></div>
+            </div>
+            <div class="col-right">
+                <div class="table-block"><h2 class="table-title">FIVE</h2><ul class="guest-list"><li>Heron Yang</li><li>I-Hsuan Chen</li><li>Elaine Lin</li><li>Wei-Che Chen</li><li>Yu-Hsiang Chang</li></ul></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-seat-chart', this, 'We saved', 'you a seat!', 'welcome.png')">Seat Chart</button>
+        <button class="tab-btn" onclick="switchTab('tab-itinerary', this, 'Dinner', 'Itinerary', 'cake.png')">Itinerary</button>
+        <button class="tab-btn" onclick="switchTab('tab-menu', this, 'Our', 'Menu', 'dinner.png')">Menu</button>
+        <button class="tab-btn" onclick="switchTab('tab-photos', this, 'Photos &', 'Raffle', 'raffle.png')">Raffle</button>
+    </nav>
+
+    <script>
+        // Switch between tabs, update text, AND update the header image dynamically
+        function switchTab(tabId, btnElement, topText, bottomText, imgSrc) {
+            
+            // Hide all tab contents
+            let contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            let buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab and highlight button
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            // Update Header Text contextually
+            document.querySelector('.title-text-top').innerText = topText;
+            document.querySelector('.title-text-bottom h1').innerText = bottomText;
+
+            // Update Header Image
+            document.getElementById('main-header-image').src = imgSrc;
+
+            // Scroll back up to the top slightly when switching tabs for a clean view
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle the Itinerary tab between Mandarin and English
+        function toggleItineraryLang(btnElement) {
+            let zh = document.getElementById('itinerary-zh');
+            let en = document.getElementById('itinerary-en');
+            let isEnglish = en.style.display !== 'none';
+
+            if (isEnglish) {
+                en.style.display = 'none';
+                zh.style.display = 'flex';
+                btnElement.innerText = 'EN';
+            } else {
+                zh.style.display = 'none';
+                en.style.display = 'flex';
+                btnElement.innerText = '中';
+            }
+        }
+
+        // Search guests scoped to the active tab
+        function searchGuests(inputElement) {
+            let input = inputElement.value.toLowerCase();
+            let activeTab = inputElement.closest('.tab-content');
+            let tables = activeTab.querySelectorAll('.table-block');
+
+            tables.forEach(table => {
+                let guests = table.querySelectorAll('.guest-list li');
+                let hasVisibleGuest = false;
+
+                guests.forEach(guest => {
+                    let name = guest.textContent || guest.innerText;
+                    guest.classList.remove('highlight');
+
+                    if (name.toLowerCase().indexOf(input) > -1) {
+                        guest.style.display = "";
+                        hasVisibleGuest = true;
+                        
+                        if (input !== "") {
+                            guest.classList.add('highlight');
+                        }
+                    } else {
+                        guest.style.display = "none";
+                    }
+                });
+
+                if (hasVisibleGuest) {
+                    table.style.display = "flex";
+                } else {
+                    table.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
