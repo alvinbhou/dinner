@@ -423,7 +423,7 @@
         </div>
     </div>
 
-    <div id="tab-seat-chart" class="tab-content active">
+    <div id="tab-seat-chart" class="tab-content">
         <div class="search-container">
             <input type="text" class="searchInput" placeholder="Find your name..." onkeyup="searchGuests(this)">
         </div>
@@ -441,7 +441,7 @@
         </div>
     </div>
 
-    <div id="tab-itinerary" class="tab-content">
+    <div id="tab-itinerary" class="tab-content active">
         <div class="lang-toggle-wrap">
             <button class="lang-toggle" id="itinerary-lang-toggle" onclick="toggleItineraryLang(this)">EN</button>
         </div>
@@ -449,19 +449,19 @@
             <div class="timeline-item">
                 <div class="timeline-time">18:00 — 18:35</div>
                 <div class="timeline-title">迎賓時光</div>
-                <div class="timeline-desc">在入口處與新人合影留念，留下今晚最美好的第一刻。</div>
+                <div class="timeline-desc">在入口處與新人合影留念，留下今晚最美好的第一刻</div>
             </div>
 
             <div class="timeline-item">
                 <div class="timeline-time">18:35 — 18:45</div>
                 <div class="timeline-title">晚宴序幕</div>
-                <div class="timeline-desc">請大家入座，燈光漸暗，開場影片為今晚拉開序幕。</div>
+                <div class="timeline-desc">請大家入座，燈光漸暗，開場影片為今晚拉開序幕</div>
             </div>
 
             <div class="timeline-item">
                 <div class="timeline-time">18:45 — 19:05</div>
                 <div class="timeline-title">誓言時刻</div>
-                <div class="timeline-desc">新人步入會場並交換誓言，雙方家長也將獻上祝福與勉勵。</div>
+                <div class="timeline-desc">新人步入會場並交換誓言，雙方家長也將獻上祝福與勉勵</div>
             </div>
 
             <div class="timeline-item">
@@ -477,11 +477,11 @@
                 <div class="timeline-sub">
                     <div class="timeline-sub-item">
                         <div class="timeline-sub-time">20:15 — 20:30 好友致詞</div>
-                        <div class="timeline-sub-desc">好友們輪番上台，分享與新人相處的點滴回憶。</div>
+                        <div class="timeline-sub-desc">好友們輪番上台，分享與新人相處的點滴回憶</div>
                     </div>
                     <div class="timeline-sub-item">
                         <div class="timeline-sub-time">20:50 — 21:30 抽獎同樂</div>
-                        <div class="timeline-sub-desc">伴著甜點與咖啡，抽獎遊戲將氣氛帶向高潮。</div>
+                        <div class="timeline-sub-desc">伴著甜點與蛋糕與抽獎遊戲將氣氛帶向高潮</div>
                     </div>
                 </div>
             </div>
@@ -489,7 +489,7 @@
             <div class="timeline-item">
                 <div class="timeline-time">21:30 — 22:00</div>
                 <div class="timeline-title">賦歸時刻</div>
-                <div class="timeline-desc">最後半小時留給大家自由歡談、道別擁抱，並致贈小禮物，晚間 10:00 溫馨圓滿畫下句點。</div>
+                <div class="timeline-desc">最後半小時留給大家自由歡談，晚間 10:00 溫馨圓滿畫下句點</div>
             </div>
         </div>
         <div class="timeline-container" id="itinerary-en" style="display: none;">
@@ -528,7 +528,7 @@
                     </div>
                     <div class="timeline-sub-item">
                         <div class="timeline-sub-time">20:50 — 21:30 Raffle &amp; Games</div>
-                        <div class="timeline-sub-desc">Paired with dessert and coffee, the games bring the evening to a joyful high.</div>
+                        <div class="timeline-sub-desc">Paired with dessert and cake, the games bring the evening to a joyful high.</div>
                     </div>
                 </div>
             </div>
@@ -536,7 +536,7 @@
             <div class="timeline-item">
                 <div class="timeline-time">21:30 — 22:00</div>
                 <div class="timeline-title">Farewell</div>
-                <div class="timeline-desc">The last half hour is for mingling and goodbyes, with favors to take home as the evening wraps up warmly by 10:00 PM.</div>
+                <div class="timeline-desc">The last half hour is for mingling and goodbyes as the evening wraps up warmly by 10:00 PM.</div>
             </div>
         </div>
     </div>
@@ -589,15 +589,17 @@
         </div>
     </div>
 
+    <!--
     <div id="tab-photos" class="tab-content">
-        <div class="tbd-message">TBD</div>
+        <div class="tbd-message">More to come :D</div>
     </div>
+    -->
 
     <nav class="bottom-nav">
-        <button class="tab-btn active" data-tab="tab-seat-chart" onclick="switchTab('tab-seat-chart', this)">Seat Chart</button>
-        <button class="tab-btn" data-tab="tab-itinerary" onclick="switchTab('tab-itinerary', this)">Itinerary</button>
+        <button class="tab-btn active" data-tab="tab-itinerary" onclick="switchTab('tab-itinerary', this)">Itinerary</button>
+        <button class="tab-btn" data-tab="tab-seat-chart" onclick="switchTab('tab-seat-chart', this)">Seat Chart</button>
         <button class="tab-btn" data-tab="tab-menu" onclick="switchTab('tab-menu', this)">Menu</button>
-        <button class="tab-btn" data-tab="tab-photos" onclick="switchTab('tab-photos', this)">Raffle</button>
+        <!-- <button class="tab-btn" data-tab="tab-photos" onclick="switchTab('tab-photos', this)">Raffle</button> -->
     </nav>
 
     <script>
@@ -672,8 +674,13 @@
             }
 
             let requestedHash = location.hash.replace('#', '');
-            let tabId = Object.keys(TABS).find(id => TABS[id].hash === requestedHash) || 'tab-seat-chart';
+            let tabId = Object.keys(TABS).find(id => TABS[id].hash === requestedHash) || 'tab-itinerary';
             let btn = document.querySelector('.tab-btn[data-tab="' + tabId + '"]');
+            if (!btn) {
+                // Requested tab is hidden/commented out — fall back to the default tab
+                tabId = 'tab-itinerary';
+                btn = document.querySelector('.tab-btn[data-tab="' + tabId + '"]');
+            }
             if (btn) {
                 switchTab(tabId, btn);
             }
