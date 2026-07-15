@@ -355,13 +355,47 @@
             opacity: 0.85;
         }
 
-        .tbd-message {
+        .raffle-prompt {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 22px;
+            margin-top: 20px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .raffle-camera {
+            font-size: 3.2rem;
+            line-height: 1;
+        }
+
+        .raffle-prompt-text {
             font-family: 'Courier Prime', monospace;
-            font-size: 1.3rem;
-            letter-spacing: 4px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        .raffle-photo-link {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            opacity: 0.45;
-            margin-top: 60px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 2px solid rgba(95, 99, 53, 0.35);
+            padding-bottom: 4px;
+            transition: border-color 0.25s ease, opacity 0.25s ease;
+        }
+
+        .raffle-photo-link:hover {
+            border-color: var(--text-color);
+            opacity: 0.75;
         }
 
         .lang-toggle-wrap {
@@ -590,17 +624,23 @@
         </div>
     </div>
 
-    <!--
     <div id="tab-photos" class="tab-content">
-        <div class="tbd-message">More to come :D</div>
+        <div class="raffle-prompt">
+            <div class="raffle-camera" aria-hidden="true">📷</div>
+            <p class="raffle-prompt-text">
+                Please upload all the photos you took today to our shared album before we start the raffle!
+            </p>
+            <a class="raffle-photo-link" href="https://photos.app.goo.gl/b3ya8aGE7jo9k2d76" target="_blank" rel="noopener noreferrer">
+                Open shared album
+            </a>
+        </div>
     </div>
-    -->
 
     <nav class="bottom-nav">
         <button class="tab-btn active" data-tab="tab-itinerary" onclick="switchTab('tab-itinerary', this)">Itinerary</button>
         <button class="tab-btn" data-tab="tab-seat-chart" onclick="switchTab('tab-seat-chart', this)">Seat Chart</button>
         <button class="tab-btn" data-tab="tab-menu" onclick="switchTab('tab-menu', this)">Menu</button>
-        <!-- <button class="tab-btn" data-tab="tab-photos" onclick="switchTab('tab-photos', this)">Raffle</button> -->
+        <button class="tab-btn" data-tab="tab-photos" onclick="switchTab('tab-photos', this)">Raffle</button>
     </nav>
 
     <script>
